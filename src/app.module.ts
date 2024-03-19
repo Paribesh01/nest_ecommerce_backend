@@ -9,6 +9,7 @@ import { Collection } from './collection/entities/collection.entity';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
+import { AuthGuard } from './auth/auth.gurd';
 
 @Module({
   imports: [ TypeOrmModule.forRoot({
@@ -23,6 +24,9 @@ import { User } from './user/entities/user.entity';
     synchronize: true,
   }),ProductModule, CollectionModule, AuthModule, UserModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,{
+    provide:"App_GUARD",
+    useClass:AuthGuard
+  }],
 })
 export class AppModule {}

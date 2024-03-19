@@ -22,20 +22,26 @@ export class AuthService {
         const findUser = await this.userService.findOne(username);
         if(findUser && await bcrypt.compare(password,(await findUser).password)){
             const {password,...user} = findUser
+            console.log(user)
             return {
                 access_token: await this.jwtService.signAsync({sub:findUser.id,username:findUser.username}),
               };
         }
+        throw new ConflictException('User does not exists');
 
     }
 
-    async register (registerDto:RegisterDto){
-        const findUser = await this.userService.findOne(registerDto.username);
+    async register ({username,email,password}:RegisterDto){
+        const findUser = await this.userService.findOne(username);
         if(findUser) {
             throw new ConflictException('Username already exists');
         }
-        const createdUser = await this.userService.createUser(registerDto)
-
+        const hashedPassword = await this.createHash(password)
+        const createdUser = await this.userService.createUser({username,email,password:hashedPassword})
+        const user = await this.userService.findOne(username);
+        return {
+            access_token: await this.jwtService.signAsync({sub:user.id,username:user.username}),
+          };
         
     }
 
