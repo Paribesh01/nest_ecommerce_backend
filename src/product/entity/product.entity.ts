@@ -18,7 +18,7 @@ export class Product{
 
 
     @ManyToOne(() => User, user => user.products)
-    user: Product;
+    user: User;
     
     @ManyToOne(() => Collection, collection => collection.products)
     collection: Collection;

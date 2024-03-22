@@ -13,13 +13,13 @@ export class CollectionController {
     return this.collectionService.create(createCollectionDto, request);
   }
   @Get()
-  findAll() {
-    return this.collectionService.findAll();
+  findAll( @Req() request: any) {
+    return this.collectionService.findAll(request);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collectionService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() request: any) {
+    return this.collectionService.findOne(+id,request);
   }
 
   @Patch(':id')

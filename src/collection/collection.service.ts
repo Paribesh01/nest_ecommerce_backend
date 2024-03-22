@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
@@ -18,6 +18,9 @@ export class CollectionService {
 
   async create(createCollectionDto: CreateCollectionDto, request: Request) {
     try {
+      if(await this.collectionRepository.findOne({where:{name:createCollectionDto.name}})){
+        throw new ConflictException('Collection already exists');
+      }
       const user = await this.userRepository.findOne({ where: { username: request["user"].username } });
       if (!user) {
         throw new NotFoundException('User not found');
@@ -36,27 +39,35 @@ export class CollectionService {
       throw new Error('Failed to create collection',); // Or handle specific error cases
     }
   }
-
-  async findAll() {
+  async findAll(request: Request) {
     try {
-      const collectionsWithUsers = await this.collectionRepository.createQueryBuilder('collection')
-        .leftJoinAndSelect('collection.user', 'user')
-        .getMany();
-
+     
+      const user = await this.userRepository.findOne({ where: { username: request["user"].username } });
+      // Retrieve collections with associated user information
+      const collectionsWithUsers = await this.collectionRepository.find({
+        where: { user: user },
+        relations: ['user'] // Load the associated user data
+      });
+  
       return collectionsWithUsers;
     } catch (error) {
       console.error('Failed to fetch collections with users:', error);
       throw new Error('Failed to fetch collections with users');
     }
   }
-
-  async findOne(id: number) {
+  async findOne(id: number,request:Request) {
     try {
-      const queryBuilder: SelectQueryBuilder<Collection> = this.collectionRepository.createQueryBuilder('collection');
-      queryBuilder.leftJoinAndSelect('collection.products', 'products')
-                  .where('collection.id = :id', { id });
+      // const queryBuilder: SelectQueryBuilder<Collection> = this.collectionRepository.createQueryBuilder('collection');
+      // queryBuilder.leftJoinAndSelect('collection.products', 'products')
+      //             .where('collection.id = :id', { id });
 
-      const collection = await queryBuilder.getOne();
+      // const collection = await queryBuilder.getOne();
+      const user = await this.userRepository.findOne({ where: { username: request["user"].username } });
+      const collection = await this.collectionRepository.find({
+        where:{user:user,id},
+        relations:["products"]
+      })
+
       if (!collection) {
         throw new NotFoundException('Collection not found');
       }
