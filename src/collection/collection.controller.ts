@@ -1,25 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CollectionService } from './collection.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { Request } from 'express';
 
 @Controller('collection')
 export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Post()
-  create(@Body() createCollectionDto: CreateCollectionDto) {
-    return this.collectionService.create(createCollectionDto);
+  create(@Body() createCollectionDto: CreateCollectionDto,  @Req() request: any) {
+    return this.collectionService.create(createCollectionDto, request);
   }
-
   @Get()
-  findAll() {
-    return this.collectionService.findAll();
+  findAll( @Req() request: any) {
+    return this.collectionService.findAll(request);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collectionService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() request: any) {
+    return this.collectionService.findOne(+id,request);
   }
 
   @Patch(':id')
