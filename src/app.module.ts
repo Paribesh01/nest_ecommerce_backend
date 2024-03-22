@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { AuthGuard } from './auth/auth.gurd';
+import { CartModule } from './cart/cart.module';
+import { Cart } from './cart/entities/cart.entity';
 
 @Module({
   imports: [ TypeOrmModule.forRoot({
@@ -20,9 +22,9 @@ import { AuthGuard } from './auth/auth.gurd';
     username: 'root',
     password: 'Abi1234@',
     database: 'ecommerce',
-    entities: [Product,Collection,User],
+    entities: [Product,Collection,User,Cart],
     synchronize: true,
-  }),ProductModule, CollectionModule, AuthModule, UserModule],
+  }),ProductModule, CollectionModule, AuthModule, UserModule, CartModule],
   controllers: [AppController],
   providers: [AppService,{
     provide:"App_GUARD",

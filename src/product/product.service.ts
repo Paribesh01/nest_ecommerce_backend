@@ -20,6 +20,11 @@ export class ProductService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+    async findPro(id:number){
+      return{product :await this.productRepository.find({where:{id}})}
+    }
+
+
   async findOne(id: number) {
     try {
       const item = await this.productRepository
@@ -39,15 +44,19 @@ export class ProductService {
     }
   }
 
-  async findAll() {
+  async findAll(request:Request) {
     try {
-      const items = await this.productRepository
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.user', 'user')
-        .leftJoinAndSelect('product.collection', 'collection')
-        .getMany();
+      
+      const user = await this.userRepository.findOne({ where: { username: request["user"].username } });
 
-      return { status: 'success', items };
+      const items = await this.productRepository.find({
+        where: { user: user },
+      });
+  
+
+
+      
+      return { status: 'success',items };
     } catch (e) {
       return { status: 'fail', err: e.message };
     }
