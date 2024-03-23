@@ -92,7 +92,25 @@ export class CartService {
     return `This action updates a #${id} cart`;
   }
 
-  remove(id: number) {
+  async remove(id: number,request:Request) {
+
+    const productToDelete = await this.productRepository.find({where:{id}})
+    const user = await this.userRepository.findOne({ where: { username: request["user"].username }, relations: ['cart'] });
+    const cart = await this.cartRepository.findOne({ where: { id: user.cart.id }, relations: ['products'] });
+
+    const index = cart.products.findIndex(product => product.id === id);
+    if (index !== -1) {
+        // Remove the product from the cart
+        cart.products.splice(index, 1);
+        // Save the updated cart
+        await this.cartRepository.save(cart);
+        return await this.cartRepository.findOne({ where: { id: user.cart.id }, relations: ['products'] });;
+    } else {
+        return `Product with ID ${id} not found in the cart`;
+    }
+
+
+
     return `This action removes a #${id} cart`;
   }
 }
